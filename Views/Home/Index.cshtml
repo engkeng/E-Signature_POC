@@ -1,0 +1,86 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+
+<form asp-controller="Pdf" asp-action="Sign" method="post">
+    <h3>Agreement</h3>
+
+    <label>
+        <input type="checkbox" id="agreeCheck" />
+        I agree and sign
+    </label>
+
+    <br />
+    <br />
+
+    <img id="signaturePreview" style="display:none; max-width:300px;" />
+
+    <!-- Hidden field for signature -->
+    <input type="hidden" name="SignatureData" id="SignatureData" />
+
+    <button type="submit">Submit</button>
+</form>
+
+<!-- Modal Dialog -->
+<dialog id="signatureDialog">
+    <h4>Please Sign</h4>
+
+    <canvas id="signaturePad" width="500" height="200"
+            style="border:1px solid #ccc;"></canvas>
+
+    <br /><br />
+
+    <button type="button" onclick="clearSig()">Clear</button>
+    <button type="button" onclick="saveSig()">Save</button>
+    <button type="button" onclick="cancelSig()">Cancel</button>
+</dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+
+<script>
+    const checkbox = document.getElementById("agreeCheck");
+    const dialog = document.getElementById("signatureDialog");
+    const canvas = document.getElementById("signaturePad");
+    const sigPad = new SignaturePad(canvas);
+    const preview = document.getElementById("signaturePreview");
+
+    checkbox.addEventListener("change", () => {
+      if (checkbox.checked) {
+        dialog.showModal();
+      }
+    });
+
+    function clearSig() {
+      sigPad.clear();
+    }
+
+    function saveSig() {
+      if (sigPad.isEmpty()) {
+        alert("Please sign before saving.");
+        return;
+      }
+
+      const dataUrl = sigPad.toDataURL("image/png");
+      preview.src = dataUrl;
+      preview.style.display = "block";
+
+      document.getElementById("SignatureData").value = dataUrl;
+      checkbox.checked = true;
+
+      dialog.close();
+    }
+
+    function cancelSig() {
+      checkbox.checked = false;
+      sigPad.clear();
+      dialog.close();
+    }
+</script>
+
+
