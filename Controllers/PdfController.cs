@@ -14,6 +14,29 @@ namespace e_signature_mvc.Controllers
         {
             _service = IPdfService;
         }
+        
+        //[HttpPost]
+        //public IActionResult SignAndSaveIntoDocument(string SignatureData)
+        //{
+        //    if (string.IsNullOrEmpty(SignatureData))
+        //        return BadRequest("No signature received");
+
+        //    // Remove base64 prefix
+        //    var base64 = SignatureData.Replace("data:image/png;base64,", "");
+        //    byte[] signatureBytes = Convert.FromBase64String(base64);
+
+        //    _service.EmbedSignatureIntoPdf(signatureBytes);
+
+        //    return Ok("PDF signed successfully");
+        //}
+
+        [HttpGet]
+        public IActionResult ViewPdf()
+        {
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "sample_files", "test.pdf");
+            var bytes = System.IO.File.ReadAllBytes(filePath);
+            return File(bytes, "application/pdf");
+        }
 
         [HttpPost]
         public IActionResult Sign(string SignatureData)
@@ -21,34 +44,20 @@ namespace e_signature_mvc.Controllers
             if (string.IsNullOrEmpty(SignatureData))
                 return BadRequest("No signature received");
 
-            // Remove base64 prefix
+            // Convert base64 signature to bytes
             var base64 = SignatureData.Replace("data:image/png;base64,", "");
             byte[] signatureBytes = Convert.FromBase64String(base64);
 
-            _service.EmbedSignatureIntoPdf(signatureBytes);
-            //EmbedSignatureIntoPdf(signatureBytes); 
+            // Read the PDF from the same source as the iframe
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "sample_files/test.pdf");
+            byte[] pdfBytes = System.IO.File.ReadAllBytes(filePath);
 
-            return Ok("PDF signed successfully");
+            // Embed signature in-memory
+            byte[] signedPdfBytes = _service.EmbedSignatureIntoPdfInMemory(pdfBytes, signatureBytes);
+
+            // Return signed PDF to browser
+            return File(signedPdfBytes, "application/pdf");
         }
 
-        //private void EmbedSignatureIntoPdf(byte[] signatureBytes)
-        //{
-        //    string inputPdf = @"C:\Users\engkeng.puah\Downloads\test.pdf";
-        //    string outputPdf = @"C:\Users\engkeng.puah\Downloads\test_signed.pdf";
-
-        //    using var reader = new PdfReader(inputPdf);
-        //    using var writer = new PdfWriter(outputPdf);
-        //    using var pdf = new PdfDocument(reader, writer);
-
-        //    using var document = new Document(pdf);
-
-        //    ImageData imageData = ImageDataFactory.Create(signatureBytes);
-        //    Image signatureImage = new Image(imageData);
-
-        //    signatureImage.ScaleToFit(200f, 80f);
-        //    signatureImage.SetFixedPosition(100f, 100f);
-
-        //    document.Add(signatureImage);
-        //}
     }
 }

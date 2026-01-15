@@ -2,6 +2,7 @@
 {
     public interface IPdfService
     {
-        void EmbedSignatureIntoPdf(byte[] signatureBytes);
+        //void EmbedSignatureIntoPdf(byte[] signatureBytes);
+        byte[] EmbedSignatureIntoPdfInMemory(byte[] pdfBytes, byte[] signatureBytes);
     }
 }

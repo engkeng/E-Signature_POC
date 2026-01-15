@@ -2,10 +2,10 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<iframe src="@Url.Action("ViewPdf", "Pdf")"
+        width="100%"
+        height="800px">
+</iframe>
 
 
 <form asp-controller="Pdf" asp-action="Sign" method="post">
@@ -71,7 +71,7 @@
       preview.style.display = "block";
 
       document.getElementById("SignatureData").value = dataUrl;
-      checkbox.checked = true;
+      // checkbox.checked = true;
 
       dialog.close();
     }
@@ -81,6 +81,21 @@
       sigPad.clear();
       dialog.close();
     }
+</script>
+
+<script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        fetch(this.action, { method: 'POST', body: formData })
+            .then(res => res.blob())
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                document.querySelector('iframe').src = url;
+            });
+    });
 </script>
 
 
